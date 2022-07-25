@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400&display=swap');
+
+body {
+  font-family: "Roboto", sans-serif;
+  background-color: hsl(25 100% 90%);
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calculator {
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: normal;
+  font-family: "Press Start 2P", monospace;
+  color: transparent;
+  background-image: linear-gradient(90deg, hsl(25 100% 50%), hsl(45 100% 50%));
+  background-clip: text;
+  -webkit-background-clip: text;
+  display: flex;
+  justify-content: space-between;
+}
+
+.title > h1 {
+  margin: 0 0 8px 0;
+}
+
+.screen {
+  font-weight: 300;
+  text-align: right;
+  background-color: hsl(0 0% 100%);
+  box-sizing: border-box;
+  height: 100px;
+  padding: 14px 16px;
+  border-radius: 5px;
+}
+
+.prev-operation {
+  font-size: 18px;
+  margin: 0 0 8px 0;
+}
+
+.curr-operation {
+  font-size: 40px;
+  margin: 0;
+}
+
+.numpad {
+  width: 450px;
+  height: 250px;
+  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.numpad > button {
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+  color: hsl(0 0% 10%);
+  background-color: hsl(25 100% 77%);
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 5px;
+  flex: 1 1 20%;
+  transition: all 100ms;
+  cursor: pointer;
+}
+
+.numpad > button:hover {
+  background-color: hsl(35 100% 77%);
+}
+
+.numpad > button:active {
+  transform: rotate(10deg);
+}
+
+.numpad > button:nth-child(3n):active {
+  transform: rotate(-10deg);
+}
+
+.numpad > button:nth-child(4n) {
+  background-color: hsl(25 100% 70%);
+}
+
+.numpad > button:nth-child(4n):hover {
+  background-color: hsl(35 100% 70%);
+}
