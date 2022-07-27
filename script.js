@@ -12,9 +12,15 @@ let oper;
 let rhs;
 let ans;
 
+let answered = false;
+let noOperation = false;
+
 inputButtons.forEach(button => button.addEventListener("click", onCalcInput));
 
 function onCalcInput(evt) {
+  const prevSet = [lhs, oper, rhs];
+  noOperation = false;
+
   const input = evt.target.textContent;
   const state = getCalcState();
 
@@ -23,7 +29,7 @@ function onCalcInput(evt) {
   else if (input === "=") onEqualsInput(state);
 
   const newState = getCalcState();
-  displayUpdate(newState);
+  displayUpdate(newState, ...prevSet);
 }
 
 function onNumberInput(input, state) {
@@ -34,28 +40,25 @@ function onNumberInput(input, state) {
 }
 
 function onOperatorInput(input, state) {
-  if (state === "start") {
-    lhs = "0";
-  } else if (state === "rhs") {
-    lhs = ans = getAnswer();
-    rhs = undefined;
-  }
-
+  if (state === "start") lhs = "0";
+  else if (state === "rhs") manageAnswer();
   oper = input;
 }
 
 function onEqualsInput(state) {
-  if (state === "rhs") {
-    lhs = ans = getAnswer();
-    oper = rhs = undefined;
-  }
+  if (state === "rhs") manageAnswer(true);
+  else noOperation = true;
 }
 
-function displayUpdate(newState) {
+function displayUpdate(newState, prevL, prevO, prevR) {
+  if (noOperation) return;
+
   if (newState === "lhs") {
     currOperation.textContent = lhs;
+    if (answered) prevOperation.textContent = `${prevL} ${prevO} ${prevR} =`
   } else if (newState === "oper") {
     prevOperation.textContent = `${lhs} ${oper}`;
+    if (answered) currOperation.textContent = "\u200B";
   } else if (newState === "rhs") {
     currOperation.textContent = rhs;
   }
@@ -68,6 +71,9 @@ function getCalcState() {
   else return "rhs";
 }
 
-function getAnswer() {
-  return operate(+lhs, oper, +rhs);
+function manageAnswer(operClear = false) {
+  lhs = ans = operate(+lhs, oper, +rhs);
+  rhs = undefined;
+  if (operClear) oper = undefined;
+  answered = true;
 }
