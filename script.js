@@ -1,5 +1,6 @@
 import {
-  NUMBERS, OPERATORS, EQUALS, OPERATIONS,
+  NUMBERS, DECI_SEP, OPERATORS, EQUALS,
+  PLUS_MINUS, BACKSPACE, ALL_CLEAR, OPERATIONS,
 } from "./constants.js";
 
 const inputButtons = document.querySelectorAll("button");
@@ -16,12 +17,16 @@ inputButtons.forEach(button => button.addEventListener("click", onCalcInput));
 function onCalcInput(evt) {
   const prevSet = [lhs, oper, rhs];
 
-  const input = evt.target.textContent;
+  const input = evt.target.textContent.replace("xy", "^");
   const state = getCalcState().coreState;
 
   if (NUMBERS.includes(input)) onNumberInput(input, state);
+  else if (input === DECI_SEP) onSeparatorInput(input, state);
   else if (OPERATORS.includes(input)) onOperatorInput(input, state);
   else if (input === EQUALS) onEqualsInput(state);
+  else if (input === PLUS_MINUS) onPlusMinusInput(state);
+  else if (input === BACKSPACE) onBackspaceInput(state);
+  else if (input === ALL_CLEAR) onAllClearInput();
 
   const newState = getCalcState();
   displayUpdate(newState, ...prevSet);
@@ -34,6 +39,13 @@ function onNumberInput(input, state) {
   else if (state === "rhs") rhs += input;
 }
 
+function onSeparatorInput(input, state) {
+  if (state === "start") lhs = "0.";
+  else if (state === "lhs" && !lhs.includes(input)) lhs += input;
+  else if (state === "oper") rhs = "0.";
+  else if (state === "rhs" && !rhs.includes(input)) rhs += input;
+}
+
 function onOperatorInput(input, state) {
   if (state === "start") lhs = "0";
   else if (state === "rhs") manageAnswer();
@@ -44,22 +56,42 @@ function onEqualsInput(state) {
   if (state === "rhs") manageAnswer(true);
 }
 
-function manageAnswer(operClear = false) {
-  lhs = ans = OPERATIONS[oper](+lhs, +rhs);
-  rhs = undefined;
-  if (operClear) oper = undefined;
+function onPlusMinusInput(state) {
+  if (state === "lhs")
+    lhs = (lhs[0] === "-") ? lhs.slice(1) : `-${lhs}`;
+  else if (state === "rhs")
+    rhs = (rhs[0] === "-") ? rhs.slice(1) : `-${rhs}`;
+}
+
+function onBackspaceInput(state) {
+  if (state === "lhs")
+    lhs = (lhs.length === 1) ? undefined : lhs.slice(0, -1);
+  else if (state === "oper")
+    oper = undefined;
+  else if (state === "rhs")
+    rhs = (rhs.length === 1) ? undefined : rhs.slice(0, -1);
+}
+
+function onAllClearInput() {
+  lhs = oper = rhs = ans = undefined;
 }
 
 function displayUpdate(newState, prevL, prevO, prevR) {
   const { coreState, answered } = newState;
 
-  if (coreState === "lhs") {
+  if (coreState === "start") {
+    currOperation.textContent = "0";
+    prevOperation.textContent = "";
+  } else if (coreState === "lhs") {
     currOperation.textContent = lhs;
     if (!isDefined(prevO) && answered) return;
-    if (answered) prevOperation.textContent = `${prevL} ${prevO} ${prevR} =`
+    prevOperation.textContent =
+      (isDefined(prevR) && answered)
+      ? `${prevL} ${prevO} ${prevR} =`
+      : "";
   } else if (coreState === "oper") {
+    currOperation.textContent = "\u200B";
     prevOperation.textContent = `${lhs} ${oper}`;
-    if (answered) currOperation.textContent = "\u200B";
   } else if (coreState === "rhs") {
     currOperation.textContent = rhs;
   }
@@ -77,6 +109,12 @@ function getCalcCoreState() {
   else if (!isDefined(oper)) return "lhs";
   else if (!isDefined(rhs)) return "oper";
   else return "rhs";
+}
+
+function manageAnswer(operClear = false) {
+  lhs = ans = String(OPERATIONS[oper](+lhs, +rhs));
+  rhs = undefined;
+  if (operClear) oper = undefined;
 }
 
 function isDefined(variable) {

@@ -11,6 +11,11 @@ body {
   align-items: center;
 }
 
+sup {
+  vertical-align: top;
+  font-size: 0.6em;
+}
+
 .calculator {
   gap: 20px;
   display: flex;
