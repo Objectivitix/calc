@@ -1,7 +1,6 @@
-import { operate } from "./utils.js";
-
-const NUMBERS = Array.from(Array(10), (v, i) => String(i));
-const OPERATORS = ["+", "-", "×", "÷"]
+import {
+  NUMBERS, OPERATORS, EQUALS, OPERATIONS,
+} from "./constants.js";
 
 const inputButtons = document.querySelectorAll("button");
 const prevOperation = document.querySelector(".prev-operation");
@@ -12,21 +11,17 @@ let oper;
 let rhs;
 let ans;
 
-let answered = false;
-let noOperation = false;
-
 inputButtons.forEach(button => button.addEventListener("click", onCalcInput));
 
 function onCalcInput(evt) {
   const prevSet = [lhs, oper, rhs];
-  noOperation = false;
 
   const input = evt.target.textContent;
-  const state = getCalcState();
+  const state = getCalcState().coreState;
 
   if (NUMBERS.includes(input)) onNumberInput(input, state);
   else if (OPERATORS.includes(input)) onOperatorInput(input, state);
-  else if (input === "=") onEqualsInput(state);
+  else if (input === EQUALS) onEqualsInput(state);
 
   const newState = getCalcState();
   displayUpdate(newState, ...prevSet);
@@ -47,33 +42,43 @@ function onOperatorInput(input, state) {
 
 function onEqualsInput(state) {
   if (state === "rhs") manageAnswer(true);
-  else noOperation = true;
+}
+
+function manageAnswer(operClear = false) {
+  lhs = ans = OPERATIONS[oper](+lhs, +rhs);
+  rhs = undefined;
+  if (operClear) oper = undefined;
 }
 
 function displayUpdate(newState, prevL, prevO, prevR) {
-  if (noOperation) return;
+  const { coreState, answered } = newState;
 
-  if (newState === "lhs") {
+  if (coreState === "lhs") {
     currOperation.textContent = lhs;
+    if (!isDefined(prevO) && answered) return;
     if (answered) prevOperation.textContent = `${prevL} ${prevO} ${prevR} =`
-  } else if (newState === "oper") {
+  } else if (coreState === "oper") {
     prevOperation.textContent = `${lhs} ${oper}`;
     if (answered) currOperation.textContent = "\u200B";
-  } else if (newState === "rhs") {
+  } else if (coreState === "rhs") {
     currOperation.textContent = rhs;
   }
 }
 
 function getCalcState() {
-  if (typeof lhs === "undefined") return "start";
-  else if (typeof oper === "undefined") return "lhs";
-  else if (typeof rhs === "undefined") return "oper";
+  return {
+    coreState: getCalcCoreState(),
+    answered: isDefined(ans),
+  }
+}
+
+function getCalcCoreState() {
+  if (!isDefined(lhs)) return "start";
+  else if (!isDefined(oper)) return "lhs";
+  else if (!isDefined(rhs)) return "oper";
   else return "rhs";
 }
 
-function manageAnswer(operClear = false) {
-  lhs = ans = operate(+lhs, oper, +rhs);
-  rhs = undefined;
-  if (operClear) oper = undefined;
-  answered = true;
+function isDefined(variable) {
+  return typeof variable !== "undefined";
 }
