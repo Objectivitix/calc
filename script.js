@@ -4,6 +4,7 @@ import {
 } from "./constants.js";
 
 const inputButtons = document.querySelectorAll("button");
+const allClearButton = document.querySelector(".all-clear");
 const prevOperation = document.querySelector(".prev-operation");
 const currOperation = document.querySelector(".curr-operation");
 
@@ -27,6 +28,8 @@ function onCalcInput(evt) {
   else if (input === PLUS_MINUS) onPlusMinusInput(state);
   else if (input === BACKSPACE) onBackspaceInput(state);
   else if (input === ALL_CLEAR) onAllClearInput();
+
+  if (ans === "ERROR") handleMathError();
 
   const newState = getCalcState();
   displayUpdate(newState, ...prevSet);
@@ -112,9 +115,25 @@ function getCalcCoreState() {
 }
 
 function manageAnswer(operClear = false) {
-  lhs = ans = String(OPERATIONS[oper](+lhs, +rhs));
+  const error = oper === "÷" && +rhs === 0 ||
+    +lhs === 0 && oper === "^" && +rhs === 0;
+
+  const result = (error) ? "ERROR" :
+    String(OPERATIONS[oper](+lhs, +rhs).toFixed(12))
+      .replace(/0+$/, "").replace(/\.$/, "");
+
+  lhs = ans = result;
   rhs = undefined;
   if (operClear) oper = undefined;
+}
+
+function handleMathError() {
+  inputButtons.forEach(button => button.removeEventListener("click", onCalcInput));
+  allClearButton.addEventListener("click", onCalcInput);
+  allClearButton.addEventListener("click", function cleanUp() {
+    inputButtons.forEach(button => button.addEventListener("click", onCalcInput));
+    allClearButton.removeEventListener("click", cleanUp);
+  })
 }
 
 function isDefined(variable) {
