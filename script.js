@@ -164,7 +164,7 @@ function reset() {
   inputButtons.forEach(button => button.addEventListener("click", onCalcMouseInput));
 
   body.removeEventListener("keydown", onCKIOnlyAllClear);
-  body.removeEventListener("keydown", reset);
+  body.removeEventListener("keydown", keyboardReset);
   body.addEventListener("keydown", onCalcKeyboardInput);
 }
 
