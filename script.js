@@ -55,7 +55,7 @@ function onCalcMouseInput(evt) {
 }
 
 function onNumberInput(input, state) {
-  if (state === "start") lhs = input;
+  if (state === "start" && input !== "0") lhs = input;
   else if (state === "lhs") lhs += input;
   else if (state === "oper") rhs = input;
   else if (state === "rhs") rhs += input;
