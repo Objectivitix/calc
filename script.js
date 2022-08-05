@@ -37,9 +37,9 @@ function onCalcInput(evt) {
 
 function onNumberInput(input, state) {
   if (state === "start") lhs = input;
-  else if (state === "lhs") lhs += input;
+  else if (state === "lhs" && lhs.length < 18) lhs += input;
   else if (state === "oper") rhs = input;
-  else if (state === "rhs") rhs += input;
+  else if (state === "rhs" && rhs.length < 18) rhs += input;
 }
 
 function onSeparatorInput(input, state) {
