@@ -17,6 +17,7 @@ sup {
 }
 
 .calculator {
+  width: 450px;
   gap: 20px;
   display: flex;
   flex-direction: column;
@@ -39,31 +40,31 @@ sup {
 }
 
 .screen {
+  word-break: break-all;
+  text-align: right;
   font-weight: 300;
   background-color: hsl(0 0% 100%);
   box-sizing: border-box;
-  height: 100px;
-  padding: 9px 16px;
+  min-height: 100px;
+  padding: 14px 16px 9px 16px;
   border-radius: 5px;
   gap: 8px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  align-items: flex-end;
 }
 
-.prev-operation {
+.prev-input {
   font-size: 18px;
   margin: 0;
 }
 
-.curr-operation {
+.curr-input {
   font-size: 40px;
   margin: 0;
 }
 
 .numpad {
-  width: 450px;
   height: 250px;
   gap: 8px;
   display: flex;
