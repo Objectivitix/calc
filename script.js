@@ -1,8 +1,9 @@
 import {
-  NUMBERS, OPERATORS, EQUALS, DECI_SEP,
-  SIGN_TOGGLE, BACKSPACE, ALL_CLEAR, OPERATIONS,
+  MOUSE, KEYBOARD, OPERATOR_TRANSLATE,
+  OPERATIONS,
 } from "./constants.js";
 
+const body = document.querySelector("body");
 const inputButtons = document.querySelectorAll("button");
 const allClearButton = document.querySelector(".all-clear");
 const prevInput = document.querySelector(".prev-input");
@@ -13,21 +14,41 @@ let oper;
 let rhs;
 let ans;
 
-inputButtons.forEach(button => button.addEventListener("click", onCalcInput));
+body.addEventListener("keydown", onCalcKeyboardInput);
+inputButtons.forEach(button => button.addEventListener("click", onCalcMouseInput));
 
-function onCalcInput(evt) {
+function onCalcKeyboardInput(evt) {
   const prevOperation = [lhs, oper, rhs];
 
+  const input = evt.key;
+  const state = getCalcState().coreState;
+
+  if (KEYBOARD.numbers.includes(input)) onNumberInput(input, state);
+  else if (KEYBOARD.operators.includes(input)) onOperatorInput(translate(input), state);
+  else if (KEYBOARD.equals.includes(input)) onEqualsInput(state);
+  else if (input === KEYBOARD.decimalSep) onSeparatorInput(state);
+  else if (input === KEYBOARD.signToggle) onSignToggleInput(state);
+  else if (input === KEYBOARD.backspace) onBackspaceInput(state);
+  else if (input === KEYBOARD.allClear) onAllClearInput();
+
+  const newState = getCalcState();
+  displayUpdate(newState, ...prevOperation);
+}
+
+function onCalcMouseInput(evt) {
+  evt.target.blur();
+
+  const prevOperation = [lhs, oper, rhs];
   const input = evt.target.textContent.replace("xy", "^");
   const state = getCalcState().coreState;
 
-  if (NUMBERS.includes(input)) onNumberInput(input, state);
-  else if (OPERATORS.includes(input)) onOperatorInput(input, state);
-  else if (input === EQUALS) onEqualsInput(state);
-  else if (input === DECI_SEP) onSeparatorInput(input, state);
-  else if (input === SIGN_TOGGLE) onSignToggleInput(state);
-  else if (input === BACKSPACE) onBackspaceInput(state);
-  else if (input === ALL_CLEAR) onAllClearInput();
+  if (MOUSE.numbers.includes(input)) onNumberInput(input, state);
+  else if (MOUSE.operators.includes(input)) onOperatorInput(input, state);
+  else if (input === MOUSE.equals) onEqualsInput(state);
+  else if (input === MOUSE.decimalSep) onSeparatorInput(state);
+  else if (input === MOUSE.signToggle) onSignToggleInput(state);
+  else if (input === MOUSE.backspace) onBackspaceInput(state);
+  else if (input === MOUSE.allClear) onAllClearInput();
 
   const newState = getCalcState();
   displayUpdate(newState, ...prevOperation);
@@ -50,11 +71,11 @@ function onEqualsInput(state) {
   if (state === "rhs") manageAnswer(true);
 }
 
-function onSeparatorInput(input, state) {
+function onSeparatorInput(state) {
   if (state === "start") lhs = "0.";
-  else if (state === "lhs" && !lhs.includes(input)) lhs += input;
+  else if (state === "lhs" && !lhs.includes(".")) lhs += ".";
   else if (state === "oper") rhs = "0.";
-  else if (state === "rhs" && !rhs.includes(input)) rhs += input;
+  else if (state === "rhs" && !rhs.includes(".")) rhs += ".";
 }
 
 function onSignToggleInput(state) {
@@ -128,12 +149,35 @@ function manageAnswer(operClear = false) {
 }
 
 function handleMathError() {
-  inputButtons.forEach(button => button.removeEventListener("click", onCalcInput));
-  allClearButton.addEventListener("click", onCalcInput);
-  allClearButton.addEventListener("click", function reset() {
-    inputButtons.forEach(button => button.addEventListener("click", onCalcInput));
-    allClearButton.removeEventListener("click", reset);
-  })
+  inputButtons.forEach(button => button.removeEventListener("click", onCalcMouseInput));
+  allClearButton.addEventListener("click", onCalcMouseInput);
+  allClearButton.addEventListener("click", reset);
+
+  body.removeEventListener("keydown", onCalcKeyboardInput);
+  body.addEventListener("keydown", onCKIOnlyAllClear);
+  body.addEventListener("keydown", keyboardReset);
+}
+
+function reset() {
+  allClearButton.removeEventListener("click", onCalcMouseInput);
+  allClearButton.removeEventListener("click", reset);
+  inputButtons.forEach(button => button.addEventListener("click", onCalcMouseInput));
+
+  body.removeEventListener("keydown", onCKIOnlyAllClear);
+  body.removeEventListener("keydown", reset);
+  body.addEventListener("keydown", onCalcKeyboardInput);
+}
+
+function onCKIOnlyAllClear(evt) {
+  if (evt.key === "c") onCalcKeyboardInput(evt);
+}
+
+function keyboardReset(evt) {
+  if (evt.key === "c") reset();
+}
+
+function translate(oper) {
+  return OPERATOR_TRANSLATE[oper] ?? oper;
 }
 
 function isUndefined(variable) {

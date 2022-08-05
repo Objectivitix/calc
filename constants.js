@@ -1,10 +1,27 @@
-export const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-export const OPERATORS = ["+", "-", "×", "÷", "^"];
-export const EQUALS = "=";
-export const DECI_SEP = ".";
-export const SIGN_TOGGLE = "±";
-export const BACKSPACE = "←";
-export const ALL_CLEAR = "AC";
+export const MOUSE = {
+  numbers: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+  operators: ["+", "-", "×", "÷", "^"],
+  equals: "=",
+  decimalSep: ".",
+  signToggle: "±",
+  backspace: "←",
+  allClear: "AC",
+};
+
+export const KEYBOARD = {
+  numbers: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+  operators: ["+", "-", "*", "/", "^"],
+  equals: ["=", "Enter"],
+  decimalSep: ".",
+  signToggle: "s",
+  backspace: "Backspace",
+  allClear: "c",
+};
+
+export const OPERATOR_TRANSLATE = {
+  "*": "×",
+  "/": "÷",
+}
 
 export const OPERATIONS = {
   "+": (a, b) => a + b,
