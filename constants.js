@@ -30,3 +30,5 @@ export const OPERATIONS = {
   "÷": (a, b) => a / b,
   "^": (a, b) => a ** b,
 };
+
+export const ERROR_VALUES = ["Infinity", "-Infinity", "NaN"];

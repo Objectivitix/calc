@@ -1,6 +1,6 @@
 import {
   MOUSE, KEYBOARD, OPERATOR_TRANSLATE,
-  OPERATIONS,
+  OPERATIONS, ERROR_VALUES,
 } from "./constants.js";
 
 const body = document.querySelector("body");
@@ -39,6 +39,7 @@ function onCalcMouseInput(evt) {
   evt.target.blur();
 
   const prevOperation = [lhs, oper, rhs];
+
   const input = evt.target.textContent.replace("xy", "^");
   const state = getCalcState().coreState;
 
@@ -58,7 +59,7 @@ function onNumberInput(input, state) {
   if (state === "start" && input !== "0") lhs = input;
   else if (state === "lhs") lhs += input;
   else if (state === "oper") rhs = input;
-  else if (state === "rhs") rhs += input;
+  else if (state === "rhs") rhs = (rhs === "0" ? input : rhs + input);
 }
 
 function onOperatorInput(input, state) {
@@ -131,16 +132,17 @@ function getCalcState() {
 }
 
 function manageAnswer(operClear = false) {
-  const mathErrorOccurred = oper === "÷" && +rhs === 0 ||
-    +lhs === 0 && oper === "^" && +rhs === 0;
+  let result = String(OPERATIONS[oper](+lhs, +rhs).toFixed(12))
+    .replace(/(?<!e.+)0+$/, "").replace(/\.$/, "");
 
-  let result;
+  const mathErrorOccurred =
+    oper === "÷" && +rhs === 0
+    || +lhs === 0 && oper === "^" && +rhs === 0
+    || ERROR_VALUES.includes(result);
+
   if (mathErrorOccurred) {
     result = "ERROR";
     handleMathError();
-  } else {
-    result = String(OPERATIONS[oper](+lhs, +rhs).toFixed(12))
-      .replace(/(?<!e.+)0+$/, "").replace(/\.$/, "");
   }
 
   lhs = ans = result;
